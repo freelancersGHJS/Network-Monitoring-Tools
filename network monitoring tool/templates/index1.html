@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GRL</title>
+</head>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<style>
+    div.container1{
+      width:900px;
+      height:700px;
+      margin: auto;
+      border: 1px solid green;
+    }
+    div.chard{
+      height:400px;
+      width:800px;
+      margin-left:10px;
+      margin-top:60px;
+    }
+     div.container2{
+      width:500px;
+      height:50px;
+      margin: auto;
+    }
+
+</style>
+<body>
+<div class="container1" >
+<div class="container2">
+<form action="http://127.0.0.1:5000" method="POST" style="margin-top:15px;margin-left:50;border-bottom:1px solid green;">
+<h4 style="color:green;margin-left:30%;">Network Monitoring Tool</h4>
+            NETWORK ID:<input type="text" name="net_address">
+            TIME:<input type="number" name="secs"><br>
+            <input type="submit" value="search" style="margin-bottom:10px;margin-top:15px;margin-left:40%;">
+</form>
+</div>
+<div class="chard">
+<div id="chart">
+<script >
+function plots_x(plots) {
+	var array = JSON.parse("{{ plot_x }}");
+         return array[plots];
+}
+function plots_y(plots) {
+		var array = JSON.parse("{{ plot_y }}");
+         return array[plots];
+}
+
+var cnt = 0,plots = 0;
+ Plotly.plot('chart',[{
+		x:[plots_x()],
+        y:[plots_y()],
+        type:'line'
+}]);
+
+setInterval(function(){
+   Plotly.extendTraces('chart',{ y:[[plots_y(plots)]], x:[[plots_x(plots)]]}, [0]);
+   cnt++;
+   plots +=1;
+},3000);
+</script>
+
+</div>
+</div>
+<div style="margin-top:60px;margin-left:60px;">
+        <button type="button" style="float:left;margin-left:30px;">SAVE</button >
+    <form action="http://127.0.0.1:5000/grl" style="float:left;margin-left:30px;">
+        <input type="submit" value="open" name="open">
+    </form>
+        <button type="button" style="float:left;margin-left:30px;">REPORT</button>
+
+        {% if name == "connection not established" %}
+            <input type="radio" value="connection not established" style="margin-left:30px;"> connection not established<br>
+            <h5 style="margin-left:3%;">Speed : 0 </h5>
+        {% else %}
+             <input type="radio" value="connection established" checked style="margin-left:30px;"> connection established<br>
+                <h2 style="margin-left:3%;">Speed : {{name}}</h2>
+        {% endif %}
+
+</div>
+</div>
+</div>
+</body>
+</html>
