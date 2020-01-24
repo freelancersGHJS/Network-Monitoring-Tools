@@ -1,0 +1,131 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Creating Real-Time Charts with Flask</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" rel="stylesheet">
+    <style>
+    div.chard{
+      height:500px;
+      width:800px;
+      margin-left:10px;
+      border-top: 1px solid green;
+      margin-top:70px;
+    }
+     div.container2{
+      width:500px;
+      height:50px;
+      margin: auto;
+    }
+    div.container1{
+      width:900px;
+      height:750px;
+      margin: auto;
+      border: 1px solid green;
+    }
+    </style>
+</head>
+<body>
+<div class="container1">
+######################################################getting user input
+<div class="container2">
+<form action="http://127.0.0.1:5000/chart-data" method="POST">
+<h4 style="color:green;margin-left:30%;">Network Monitoring Tool</h4>
+            NETWORK ID:<input type="text" name="net_address" style="width:200px;height:25px;"><br>
+            TIME :<input type="number" name="secs" style="width:200px;height:25px;margin-left: 55px;">
+            <input type="submit" value="search" style="border-bottom: 1px solid green;margin-left: 70px;">
+
+</form>
+</div>
+<div class = "chard" >
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <canvas id="canvas"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+############################################################plotting plots each sent data
+{% if data=="yes" %}
+<!--suppress JSUnresolvedLibraryURL -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+<!--suppress JSUnresolvedLibraryURL -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<!--suppress JSUnresolvedLibraryURL -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+<script>
+    $(document).ready(function () {
+        const config = {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: "Random Dataset",
+                    backgroundColor: 'rgb(255, 99, 132)',
+                    borderColor: 'rgb(255, 99, 132)',
+                    data: [],
+                    fill: false,
+                }],
+            },
+            options: {
+                responsive: true,
+                title: {
+                    display: true,
+                    text: 'Creating Real-Time Charts with Flask'
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                hover: {
+                    mode: 'nearest',
+                    intersect: true
+                },
+                scales: {
+                    xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Time'
+                        }
+                    }],
+                    yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Value'
+                        }
+                    }]
+                }
+            }
+        };
+
+        const context = document.getElementById('canvas').getContext('2d');
+
+        const lineChart = new Chart(context, config);
+
+        const source = new EventSource("/chart-data");
+
+        source.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            if (config.data.labels.length == 20) {
+                config.data.labels.shift();
+                config.data.datasets[0].data.shift();
+            }
+            config.data.labels.push(data.time);
+            config.data.datasets[0].data.push(data.value);
+            lineChart.update();
+        }
+    });
+</script>
+
+{% endif %}
+
+</div>
+</div>
+</body>
+</html>
