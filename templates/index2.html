@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Saved_data</title>
+</head>
+   <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<style>
+    div.container1{
+      width:900px;
+      height:600px;
+      margin: auto;
+      border: 1px solid green;
+    }
+    div.chard{
+      height:500px;
+      width:800px;
+      margin-left:0px;
+      margin-top:5%;
+    }
+     div.container2{
+      margin-bottom:10px;
+      margin-top:10px;
+      height:50px;
+      margin: auto;
+    }
+
+</style>
+<body>
+<div class="container1" >
+<div class="container2">
+    {% if name == "connection not established" %}
+    <input type="radio" value="connection not established" style="margin-left:40%"> connection not established<br>
+    <h5 style="border-bottom:1px solid green;margin-left:40%;">Speed : 0 </h5>
+    <h6 style="border-bottom:1px solid green;"></h6>
+    {% else %}
+    <input type="radio" value="connection established" style="margin-left:40%;" checked> connection established<br>
+    <h2 style="border-bottom:1px solid white;margin-left:40%;">Speed : {{name}}</h2>
+    <h6 style="border-bottom:1px solid green;"></h6>
+    {% endif %}
+</div>
+<div class="chard">
+<div id="chart">
+<script >
+function plots_x(plots) {
+	var array = JSON.parse("{{ plot_x }}");
+         return array[plots];
+}
+function plots_y(plots) {
+		var array = JSON.parse("{{ plot_y }}");
+         return array[plots];
+}
+
+var cnt = 0,plots = 0;
+ Plotly.plot('chart',[{
+		x:[plots_x()],
+        y:[plots_y()],
+        type:'line'
+}]);
+
+setInterval(function(){
+   Plotly.extendTraces('chart',{ y:[[plots_y(plots)]], x:[[plots_x(plots)]]}, [0]);
+   cnt++;
+   plots +=1;
+},3000);
+</script>
+
+</div>
+</div>
+</div>
+</body>
+</html>
